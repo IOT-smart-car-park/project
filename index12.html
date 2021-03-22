@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+</head>
+
+<body>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <!--===========圖片上傳===================================== -->
+  <h4>Node.js upload images - bezkoder.com</h4>
+  <form class="mt-4" action="/upload" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+      <input type="file" name="file" id="input-files" class="form-control-file border" />
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="preview-images"></div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      let imagesPreview = function (input, placeToInsertImagePreview) {
+        if (input.files) {
+          let filesAmount = input.files.length;
+          for (i = 0; i < filesAmount; i++) {
+            let reader = new FileReader();
+            reader.onload = function (event) {
+              $($.parseHTML("<img>"))
+                .attr("src", event.target.result)
+                .appendTo(placeToInsertImagePreview);
+            };
+            reader.readAsDataURL(input.files[i]);
+          }
+        }
+      };
+      $("#input-files").on("change", function () {
+        imagesPreview(this, "div.preview-images");
+      });
+    });
+  </script>
+  <!--===========圖片上傳============================ -->
+
+
+  <h1>剩餘車位</h1>
+  <h1 id="space_no"></h1>
+  <!--目前剩餘車位數量會顯示在這邊-->
+  <h1>一個小時20元</h1>
+  <h3 id="time_now"></h3>
+  <!--動態顯示幕前時間-->
+  <br><br>
+
+  <form method="post" action="/">
+    <!-- method="post"用post的方法傳送資料 action="/" post之後頁面導向主頁面  -->
+
+    <input type="text" name="car_no" id="car_no">
+    <!--輸入車號，給進場和出場使用-->
+    <button type="button" id="btn_enter" name="btn_enter">進場</button>
+
+    <button type="button" id="btn_exit" name="btn_exit">出場</button>
+    <br><br><br>
+    <input type="text" name="car_search" id="car_search">
+    <!--輸入車號，從資料庫撈出目前資料-->
+    <button type="button" id="btn_search" name="btn_search">搜尋</button>
+    <br><br><br>
+    <input type="text" name="car_pay" id="car_pay">
+    <!--輸入要繳費的金額-->
+    <button type="button" id="btn_pay" name="btn_pay">付錢</button>
+
+    <h4>車號:</h4>
+    <h4 id="car_show1"></h4>
+
+    <h4>進場時間:</h4>
+    <h4 id="car_show2"></h4>
+
+    <h4>實繳金額:</h4>
+    <h4 id="car_show3"></h4>
+
+    <h4>應繳金額:</h4>
+    <h4 id="car_show4"></h4>
+
+
+  </form>
+
+  <script>
+    //============動態目前時間刷新============
+    var time_now1 = setInterval(time, 1000);
+    function time() {
+
+      document.getElementById('time_now').innerText = new Date(Date.now());
+    }
+
+    //=========刷新所有資料，要抓車子資料可以從這邊找==============
+
+    var all_data = "";//全域變數，所有車子的資料(從資料庫撈)都在這邊，每0.5秒會更新一次
+    var clock1 = setInterval(alldata2, 500);//每0.5秒更新一次
+
+    function alldata2() {
+
+      $.ajax({
+        method: "POST",
+        url: "/alldata",
+        data: {
+
+        },
+        success: function (result) {
+          all_data = result;
+        }
+      });
+    }
+    //---------------執行時更新一次，更新停車場目前空位-----------------
+    var clock = setTimeout(alldata1); //執行時更新
+    var j = 0;
+    function alldata1() {
+
+      $.ajax({
+        method: "POST",
+        url: "/alldata",
+        data: {
+
+        },
+        success: function (result) {
+          all_data = result;
+
+          for (i = 0; i < all_data.length; i++) {
+            if (all_data[i].ent_exit == "ENTER") {
+              j--;
+            } else { j++ };
+          }
+          document.getElementById('space_no').innerText = 500 + j;
+        }
+      });
+    }
+    //=========刷新所有資料，要抓車子資料可以從這邊找==============
+
+    //================進出剩餘空車位更新======================
+    $("#btn_enter").click(
+      function min() {
+        document.getElementById('space_no').innerText--;
+      })
+
+    $("#btn_exit").click(
+      function () {
+        for (i = 0; i < all_data.length; i++) {
+
+          if (all_data[i].ent_exit == 'ENTER' && all_data[i].car_no == $('#car_no').val() && all_data[i].fee == all_data[i].pay_state) {
+
+            document.getElementById('space_no').innerText++;
+            $.ajax({
+              method: "POST",
+              url: "/exit",
+              data: {
+                parameter1: $('#car_no').val(),
+              },
+              success: function (result) {
+                console.log(result);
+                console.log('submit ok!');
+              }
+            });
+            alert("謝謝光臨，歡迎下次再來");
+            // console.log($('#car_no').val());
+            break;
+          }
+        }
+      })
+
+    $("#btn_enter").click(function () {
+
+      console.log($('#car_no').val());
+
+      $.ajax({
+        method: "POST",
+        url: "/publish",
+        data: {
+          parameter: $('#car_no').val(),
+        },
+        success: function (result) {
+          console.log('車子進場囉');
+          console.log(result);
+        }
+      });
+    });
+    //================進出剩餘空車位更新===========================
+
+    //=============車號搜尋，顯示車牌號碼、進場時間、實繳金額、應繳金額===================   
+    $("#btn_search").click(function () {
+
+      console.log($('#car_search').val());
+
+      $.ajax({
+        method: "POST",
+        url: "/search",
+        data: {
+          parameter2: $('#car_search').val(),
+        },
+        success: function (result) {
+          console.log('submit ok!');
+          // data1 = JSON.parse(result);
+          z1 = result.car_no;
+          z2 = result.upload_time;
+          z3 = result.pay_state;
+          z4 = result.fee;
+
+          document.getElementById('car_show1').innerText = z1; //車牌號碼
+          document.getElementById('car_show2').innerText = z2; //進場時間
+          document.getElementById('car_show3').innerText = z3; //實繳金額
+          document.getElementById('car_show4').innerText = z4; //應繳金額
+        }
+      });
+    });
+    //=============車號搜尋，顯示車牌號碼、進場時間、實繳金額、應繳金額=================== 
+
+    //=====================付款更新資料=======================
+    $("#btn_pay").click(function () {
+
+      console.log($('#car_pay').val());
+
+      $.ajax({
+        method: "POST",
+        url: "/pay",
+        data: {
+          parameter2: $('#car_search').val(),
+          parameter3: $('#car_pay').val(),
+        },
+        success: function (result) {
+          alert('繳費成功');
+          console.log(result);
+        }
+      });
+    });
+//=====================付款更新資料=======================
+
+  </script>
+  <!-- //====================MQTT============================== -->
+  <script>
+    $(document).ready(function () {
+
+      var timer_id;
+      //control_box整個<div>圖塊的ID
+      $('#control_box').children().each(function (index, element) {
+        var _this = $(this);
+
+        console.log(index);
+        _this.find('.subscribe-sensor').change(function () {
+          if ($(this).is(":checked")) {
+            _this.find('.btn_subscribe').prop('disabled', true);
+            subscribe();
+          } else {
+            _this.find(".btn_subscribe").prop('disabled', false);
+            clearTimeout(timer_id);
+          }
+        });
+      });
+
+      $("#btn_send").click(function (e) {
+
+        console.log($('#mqtt_message').val());
+        $.ajax({
+          type: "POST",
+          url: "/publish1",
+          data: {
+            parameter1: $('#mqtt_topic').val(), //一定要加.val()才是顯示值，沒有加val只代表那一個input物件
+            parameter2: $('#mqtt_message').val() // < note use of 'this' here
+
+          },
+          success: function (result) {
+            $('#DImsg').html('OK：命令已送出，POST出去的data是：' + JSON.stringify(result));
+            console.log('ok!');
+            console.log(result);
+          }
+
+        });
+      });
+
+
+      function subscribe() {
+
+        $("#btn_subscribe").click();
+        timer_id = setTimeout(subscribe, 1000);
+      };
+
+      $("#btn_subscribe").click(function () {
+        console.log("btn_subscribe");
+
+        $.ajax({
+          type: "POST",
+          url: "/subscribe",
+          data: {
+            parameter1: $('#mqtt_subtopic').val() // < note use of 'this' here
+          },
+          success: function (result) {
+            $('#demo').html(JSON.stringify(result));
+            $("ol").append("<li>" + JSON.stringify(result) + "</li>");
+            console.log(result);
+          },
+          error: function (result) {
+            $('#demo').html('Error：' + JSON.stringify(result));
+            console.log('error!!');
+            console.log(result);
+          }
+        });
+      });
+
+      $("#clear").click(function () {
+
+        $("ol").empty();
+        $("#demo").html("");
+
+      });
+    });
+  </script>
+  </head>
+
+  <body>
+
+    <H1>Node.js MQTT Publish & Subscribe</H1>
+    <div id="control_box">
+      <b>Publish</b><br>
+      Topic:<input type="text" id="mqtt_topic"><small>(e.g., sensor/gpio)</small><br><br>
+      Messages:<input type="text" id="mqtt_message"><small>(e.g., 16/1)</small><br>
+      <button id="btn_send">Publish</button>
+      <p>
+        <hr>
+        <b>Subscribe</b><br>
+        Topic:<input type="text" id="mqtt_subtopic"> <small>(e.g., sensor/gsensor)</small><br>
+        <button id="btn_subscribe" class="btn_subscribe">Get Message </button>
+        <label><input type="checkbox" class="subscribe-sensor"> Subscribe</label>
+        <!--打勾勾 會持續追蹤-->
+        <button id="clear">Clear</button>
+
+    </div>
+    <div id="DImsg"></div>
+    <div id="demo"></div>
+
+    <ol>
+    </ol>
+    <!-- //=====================MQTT============================= -->
+  </body>
+
+</html>
