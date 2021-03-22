@@ -1,0 +1,5 @@
+train: ../car/train/images
+val: ../car/valid/images
+
+nc: 1
+names: ['LP']
