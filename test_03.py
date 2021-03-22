@@ -6,11 +6,12 @@ import time
 import os
 import datetime
 
-webcam_command = "fswebcam -r 640x480 -S 20 --no-banner --quiet /root/PyALPR/alpr.jpg"
-self.webcam_command_args = shlex.split(webcam_command)
-#alpr subprocess args
-alpr_command = "alpr -c us -t hr -n 300 -j /root/PyALPR/alpr.jpg"
-self.alpr_command_args = shlex.split(alpr_command)
+def __init__(self):
+  webcam_command = "fswebcam -r 640x480 -S 20 --no-banner --quiet /root/PyALPR/alpr.jpg"
+  self.webcam_command_args = shlex.split(webcam_command)
+  #alpr subprocess args
+  alpr_command = "alpr -c us -t hr -n 300 -j /root/PyALPR/alpr.jpg"
+  self.alpr_command_args = shlex.split(alpr_command)
 
 def ocr(IMAGE_PATH):
   SECRET_KEY = 'sk_3633a26c52f4f3688ef95335'
