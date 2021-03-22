@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>停車場繳費介面</title>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+    <script src="http://192.168.3.11:8000/"></script>
+
+    <style>
+      body{
+        text-align: center;
+      }
+
+      #layout{
+        position: absolute;
+        z-index: -1;
+        margin: 0px;
+        padding: 0px;
+        opacity: 25%;
+        width: 100%;
+        height: 100%;
+        background: url(http://192.168.3.11/car_related/images/sea_wp.jpg) no-repeat;
+        /*background-position: center;*/
+        background-size: cover; 
+      }
+      img[id=logo]{
+        position: fixed;
+        bottom: 0;
+        right: 0;
+      }
+
+      h1{
+        color: orangered;
+        margin-top: 0px;
+        font-size: 50px;
+      }
+
+      #clock{
+        text-align: right !important; 
+      }
+
+      form{
+        margin: auto;
+      }
+
+      #car_label,#choose_car,#payment_label{
+        font-size: 30px;
+        color: blue;
+        font-weight: bold;
+        margin-top: 30px;
+      }
+
+      label{
+        font-size: 20px;
+        color: green;
+        margin-right: 10px;
+      }
+
+      input{
+        font-size: 20px;
+      }
+
+
+      #enter_time{
+        font-size: 20px;
+        text-align: center;
+      }
+      #car_show4{
+        font-size: 20px;
+        text-align: center;
+      }
+
+      button{
+        color: indigo;
+        font-size: 20px;
+        background-color: lemonchiffon;
+        margin-left: 10px;
+        border-radius: 10px;
+      }
+
+      button[name=choice]{
+        color: black;
+        font-size: 20px;
+        margin:  15px 60px 10px 60px;
+      }
+
+      img{
+        margin-right: 5px;
+      }
+      
+    </style>
+  </head>
+  <body style="margin-top: 0; margin-left: 0;">
+    <div id="layout"></div>
+    <img id="logo" src="http://192.168.3.11/car_related/images/park.jpg" width="200" height="200"></img>
+    <h1>XOXO停車場</h1>
+    <h4 id="clock">TIME</h4>
+    <form method="post" action="/">
+    <!-- 以同步傳輸的方式，將使用者所填寫的資料附掛在網址內(方法為GET)，傳送到遠端伺服器裡 -->
+      
+      <div id="license_group">
+        <div id="car_label">車牌號碼</div>
+        <span>
+          <input type="text" name="car_text" id="car_search" autofocus>
+
+          <button type="button" name="search_button" id="btn_search">查詢</button>
+        </span>
+      </div>
+
+      <div id="choose_group">
+        <div id="choose_car">請選擇您的車子</div>
+        <img src="http://192.168.3.11/car_related/images/stone.jpg" width="200" height="100"></img>
+        <img src="http://192.168.3.11/car_related/images/ashin.jpg" width="200" height="100"></img>
+        <img src="http://192.168.3.11/car_related/images/masa.jpg" width="200" height="100"></img>
+
+        <br>
+        <button type="button" name="choice" id="choice_01">選擇</button>
+        <button type="button" name="choice" id="choice_02">選擇</button>
+        <button type="button" name="choice" id="choice_03">選擇</button>
+      </div>
+
+      <br><br><br>
+      <div id="money_group">
+        <label id="enter_time_label">入場時間</label>
+        <textarea id="enter_time" name="enter_time" rows="1" cols="30">...</textarea>
+        <br><br>
+        <label id="bill_label">應繳金額</label>
+        <textarea id="car_show4" name="bill_text" rows="1" cols="30">...</textarea>
+        <br><br>
+        <label id="payment_label">實繳金額</label>
+        <input type="text" name="car_pay" id="car_pay" autofocus>
+        <br><br><br>
+        <button type="button" name="btn_pay" id="btn_pay">確認繳費</button>
+      </div>
+      
+
+    </form>
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>      
+    
+    <script>
+      setInterval("clock.innerHTML=new Date().toLocaleString()+' 星期'+'日一二三四五六'.charAt(new Date().getDay());",1000); 
+
+      // ---- search
+      $("#btn_search").click(function () {
+
+          console.log($('#car_search').val());
+
+            $.ajax({
+                method: "POST",
+                url: "/search",
+                data: {
+                        parameter2: $('#car_search').val(),
+                      },
+                success: function (result) {
+                    console.log('submit ok!');
+                    // data1 = JSON.parse(result);
+                    z1 = result.car_no;
+                    z2 = result.upload_time;
+                    z3 = result.pay_state;
+                    z4 = result.fee;
+
+                    document.getElementById('car_show1').innerText = z1; //車牌號碼
+                    document.getElementById('car_show2').innerText = z2; //進場時間
+                    document.getElementById('car_show3').innerText = z3; //實繳金額
+                    document.getElementById('car_show4').innerText = z4; //應繳金額
+                }       
+            });
+        });
+
+      // --- success
+      $("#btn_pay").click(function () {
+
+          console.log($('#car_pay').val());
+
+            $.ajax({
+                method: "POST",
+                url: "/pay",
+                data: {
+                        parameter2: $('#car_search').val(),
+                        parameter3: $('#car_pay').val(),
+                      },
+                success: function (result) {
+                    alert('繳費成功');
+                    console.log(result);
+                    location.reload(true);
+                }
+            });
+        });
+
+      choose_group.style.display = 'none';
+      money_group.style.display = 'none';
+
+      function user_choice(){
+        choose_group.style.display = 'block';
+      }
+
+      function user_payment(){
+        var s;
+        function show_info(){
+          var str = "";
+          str = z2;
+          var year = str.substr(0,4);
+          var month = str.substr(5,2);
+          var day = str.substr(8,2);
+          var time = str.substr(11,8);
+          document.getElementById("enter_time").innerHTML = year + "/" + month + "/" + day + "  " + time;
+          document.getElementById('car_show4').innerText = "$ " + z4;
+        }
+        switch(event.target.id){
+          case 'choice_01':
+            choose_group.style.display = 'none';
+            btn_search.style.display = 'none';
+            money_group.style.display = 'block';
+            show_info();
+          break;
+
+          case 'choice_02':
+            choose_group.style.display = 'none';
+            btn_search.style.display = 'none';
+            money_group.style.display = 'block';
+            show_info();
+          break;
+
+          case 'choice_03':
+            choose_group.style.display = 'none';
+            btn_search.style.display = 'none';
+            money_group.style.display = 'block';
+            show_info();
+          break;
+
+        }
+        
+      }
+
+      btn_search.onclick = user_choice;
+      choice_01.onclick = user_payment;
+      choice_02.onclick = user_payment;
+      choice_03.onclick = user_payment;
+
+    </script>
+ 
+  </body>
+</html>
