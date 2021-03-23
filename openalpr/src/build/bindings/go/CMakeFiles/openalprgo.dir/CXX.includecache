@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/PingHsiLo/openalpr/src/bindings/go/openalprgo.cpp
+string
+-
+string.h
+-
+vector
+-
+alpr.h
+-
+openalprgo.h
+/Users/PingHsiLo/openalpr/src/bindings/go/openalprgo.h
+
+/Users/PingHsiLo/openalpr/src/bindings/go/openalprgo.h
+
+/usr/local/include/alpr.h
+iostream
+-
+vector
+-
+fstream
+-
+stdint.h
+-
+

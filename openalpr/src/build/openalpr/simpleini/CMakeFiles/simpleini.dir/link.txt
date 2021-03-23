@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc libsimpleini.a CMakeFiles/simpleini.dir/ConvertUTF.c.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib libsimpleini.a

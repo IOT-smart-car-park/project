@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/PingHsiLo/openalpr/src/bindings/python/openalprpy.cpp
+stdlib.h
+-
+string
+-
+string.h
+-
+alpr.h
+-
+
+/usr/local/include/alpr.h
+iostream
+-
+vector
+-
+fstream
+-
+stdint.h
+-
+
