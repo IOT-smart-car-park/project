@@ -1,0 +1,44 @@
+環境設定
+
+1.localhost 帳號更改 line:14
+2.確認路徑C:\xampp\htdocs\img, 並創立資料夾img, 路徑不能有中文 line:361 & line:369
+3.開啟xanpp 並新增一個database名稱叫car4
+4.匯入car4.sql檔案
+5.cmd到目前資料夾 安裝模組 npm install
+6.圖片若要接收 base64格式, 請在line:361加上變數, 可參閱line:360
+
+操作步驟
+
+-使用MQTTLens模擬
+1.開啟MQTTLens 將broker設定在tcp://220.132.124.155:1883
+
+-進場
+1..publish topic "red", message "1" 入口紅外線偵測到車輛 (使用MQTTLens模擬)
+1-1. 伺服器會對 topic "cam"&"car_no"發出message
+2.publish topic "car_no", message"隨便輸入一個車號"  (使用MQTTLens模擬)
+3.用cmd run MQTT_imagetest.js這個檔案 模擬使用MQTT傳送了一個圖片到 topic"cam"
+3-1. 伺服器會對 topic"fence"發出一個message 請柵欄開啟
+4.publish topic "red", message"0" 入口紅外線偵測不到車輛了，代表車子已進場 (使用MQTTLens模擬)
+4-1. 伺服器會對 topic"fence"發出一個message 請柵欄關閉
+
+-停車格(停車) -目前設定的停車格為A01, A03, B02
+1.publish topic"red_A01", message"1" 車子停到A01停車格，紅外線偵測到車子(使用MQTTLens模擬)
+1-1. 伺服器會對topic"cam_A01"發出一個message
+2.publish topic"cam_A01", message"輸入一個既有車號", 代表車子已經停好車了 (使用MQTTLens模擬)
+
+-繳費
+1.開啟瀏覽器網址輸入, 127.0.0.1:8000
+2.搜尋車輛
+3.繳費
+
+-停車格(離開)
+1.publish topic"red_A01", message"0"車子離開A01停車格，紅外線偵測到停車格已經沒有車子了(使用MQTTLens模擬)
+1-1.伺服器會把原本停在該停車格的紀錄刪除
+
+-離場
+1. publish topic"redl", message "1" 出口紅外線偵測到車輛(使用MQTTLens模擬)
+1-1. 伺服器會對topic "car_nol"發出一個message
+2.publish topic "car_nol", message"要離場的車號"(使用MQTTLens模擬)
+2-2. 伺服器會對 topic"fencel"發出一個message 請柵欄開啟
+3. publish topic "redl", message"0" 出口紅外線偵測不到車輛了，代表車子已離場 (使用MQTTLens模擬)
+3-1. 伺服器會對 topic "fencel" 發出一個message 請離場柵欄關閉
