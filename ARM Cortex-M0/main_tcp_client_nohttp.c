@@ -1,18 +1,21 @@
+//! ============================
+//! 此版本TCP 不走http方式，字串處理剩餘車位顯示在LCD上
+//! ============================
+
 #include <Nano100Series.h>
 #include <stdio.h>
 #include <string.h>
 
 // Setting AP
-#define SSID "HUAWEI-610M8I"
-#define PASSWD "12345678"
+//#define SSID "dlink-F8F8"
+//#define PASSWD "18811881"
+#define SSID "DCTV_2GH186U"
+#define PASSWD "88888888"
 
 void lcd_init(void);
 void lcd_print(uint8_t pos, char *s);
 void wifi_callback(char *rbuf);
 
-//static int CarNumber = 9999;
-//static char CarString[5]={"9999"};
-static char ShowCar[20]={"Avaliable:  "};
 
 void init_HCLK(void){
 	SYS_UnlockReg(); 
@@ -74,9 +77,8 @@ void init_UART1(uint32_t bps){
 	NVIC_EnableIRQ(UART1_IRQn);
 }
 // IRQ
-uint8_t U1F=0;
 uint16_t ri=0;
-static char rbuf[1024] = "";
+char rbuf[1024] = "";
 void UART1_IRQHandler(void){
 	//UART0->THR = UART1->RBR;  
 	uint8_t r;
@@ -89,50 +91,23 @@ void UART1_IRQHandler(void){
 	}
 }
 
-/*
-+IPD,203:HTTP/1.1 200 OK
-X-Powered-By: Express
-Content-Type: text/html
-Date: Fri, 19 Mar 2021 07:45:34 GMT
-Connection: keep-alive
-Keep-Alive: timeout=5
-Transfer-Encoding: chunked
-
-e
-left space:494
-0
-*/
-
-
-
 uint8_t REQF = 0;
 uint8_t ERRF = 0;
 char *str;
+char c1[20];
 void wifi_callback(char *rbuf){
-	if((str = strstr(rbuf,"left space:")) != NULL ){
-		REQF=1;
+	if(strstr(rbuf,"@") != NULL ){  //!  strstr()做字串掃描, 沒有掃到@會return NULL
+		sscanf(rbuf,"%*[^@]@%s",c1);  //!  sscanf()做字串掃描, 格式化意思是 %*[^@]是掃到@之前的都不要, @%s是@後面的字串我要存到c1變數
+	REQF=1;  //! 設定flag
 	}else{
-		ERRF=1;
+	ERRF=1;
 	}
 }
-
-
-
-// ---------------------------------------------
-//  TCP Client Request Header
-// ---------------------------------------------
-const char request[]="GET /mcu HTTP/1.1\r\n\
-Host: 192.168.88.103:8000\r\n\
-Content-type: text/html\r\n\
-Connetcion: keep-alive\r\n\
-\r\n";
-
 
 // ---------------------------------------------
 //  main
 // ---------------------------------------------
 int main(void){
-	char *rec;
 	init_HCLK();
 	init_systick();
 	init_UART0(115200);
@@ -144,15 +119,14 @@ int main(void){
 	}*/
 	lcd_init();
 	lcd_print(0x00,"AIoT Parking Lot");
-	lcd_print(0x40,"Avaliable : 9999");
+	lcd_print(0x40,"Welcome, come in");
 	delay_ms(2000);
-	
+    printf("AT\r\n");  //test
+    delay_ms(2000);
 
 	while(1)
 	{
-		lcd_print(0x00,"AIoT Parking Lot");
-		printf("AT\r\n");  //test
-		delay_ms(2000);
+		lcd_print(0x00," NTD$30 / Hours ");
 		printf("AT+RST\r\n");  //reboot
 		delay_ms(2000);
 		printf("AT+CWMODE=1\r\n");  //Station MODE
@@ -160,29 +134,27 @@ int main(void){
 		printf("AT+CIPMUX=0\r\n");  //one connection mode
 		delay_ms(2000);
 		printf("AT+CWJAP=\"%s\",\"%s\"\r\n",SSID,PASSWD);
-		delay_ms(6000);
-		get_staip();  //AT+CIFSR
+		delay_ms(9000);
+		printf("AT+CIFSR\r\n");
+		delay_ms(5000);
+		printf("AT+CIPSTART=\"TCP\",\"192.168.88.103\",8000\r\n");  // TCP connect
 		delay_ms(2000);
-		printf("AT+CIPSTART=\"TCP\",\"192.168.3.71\",8000\r\n");  // TCP connect
-		delay_ms(2000);
-		printf("AT+CIPSEND=%d\r\n",sizeof(request));  //send
-		delay_ms(6000);
-		printf(request);
-		delay_ms(8000);
+		// printf("AT+CIPSEND=%d\r\n",sizeof(request));  //send
+		// delay_ms(2000);
+		// printf(request);
+		// delay_ms(8000);
 
-		while(REQF==1)
+
+		while(REQF==1)   //! 當掃瞄到@ 進入此迴圈
 		{
-			REQF=0;
-			rec = (str+1);
-			strncat(ShowCar,rec,3);
-			printf("99 %s",ShowCar);
+			char c2[20];
+			REQF=0; 
+      		sprintf(c2,"Avaliable : %s",c1);  //! sprintf() 把c1的內容存到%s的位置, 並且把整個字串給c2存放
 			lcd_print(0x00,"                ");
-			delay_ms(4000);
-			lcd_print(0x00,"Welcome");
-			delay_ms(4000);
-			lcd_print(0x40,ShowCar);
-			delay_ms(4000);
+			lcd_print(0x00,"How're you today");
+			lcd_print(0x40,"                ");
+			lcd_print(0x40,c2);
+			delay_ms(5000);
 		}
 	}
 }
-

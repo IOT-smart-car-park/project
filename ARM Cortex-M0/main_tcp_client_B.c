@@ -1,5 +1,5 @@
 //! ============================
-//! 此版本TCP Client成功發出封包跟Server要剩餘車位，並且經過字串處理顯示在LCD上
+//! B區剩餘車位的MCU
 //! ============================
 
 #include <Nano100Series.h>
@@ -107,7 +107,7 @@ void wifi_callback(char *rbuf){
 // ---------------------------------------------
 //  TCP Client Request Header
 // ---------------------------------------------
-const char request[]="GET /mcu HTTP/1.1\r\n\
+const char request[]="GET /area_B HTTP/1.1\r\n\
 Host: 192.168.88.103:8000\r\n\
 Content-type: text/html\r\n\
 Connetcion: keep-alive\r\n\
@@ -117,6 +117,7 @@ Connetcion: keep-alive\r\n\
 // ---------------------------------------------
 //  main
 // ---------------------------------------------
+char c2[20];
 int main(void){
 	init_HCLK();
 	init_systick();
@@ -129,12 +130,12 @@ int main(void){
 	}*/
 	lcd_init();
 	lcd_print(0x00,"AIoT Parking Lot");
-	lcd_print(0x40,"Welcome, come in");
+	lcd_print(0x40," NTD$30 / Hours ");
 	delay_ms(2000);
 
 	while(1)
 	{
-		lcd_print(0x00," NTD$30 / Hours ");
+		lcd_print(0x00,c2);
 		printf("AT\r\n");  //test
 		delay_ms(2000);
 		printf("AT+RST\r\n");  //reboot
@@ -157,13 +158,12 @@ int main(void){
 
 		while(REQF==1)   //! 當掃瞄到@ 進入此迴圈
 		{
-			char c2[20];
 			REQF=0; 
-      		sprintf(c2,"Avaliable : %s",c1);  //! sprintf() 把c1的內容存到%s的位置, 並且把整個字串給c2存放
+      		sprintf(c2,"Space Area B : %s",c1);  //! sprintf() 把c1的內容存到%s的位置, 並且把整個字串給c2存放
 			lcd_print(0x00,"                ");
-			lcd_print(0x00,"How're you today");
+			lcd_print(0x00,c2);
 			lcd_print(0x40,"                ");
-			lcd_print(0x40,c2);
+			lcd_print(0x40,"Drive Carefully ");
 			delay_ms(5000);
 		}
 	}
