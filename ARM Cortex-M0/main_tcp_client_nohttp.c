@@ -119,39 +119,34 @@ int main(void){
 	}*/
 	lcd_init();
 	lcd_print(0x00,"AIoT Parking Lot");
+	delay_ms(2000);
 	lcd_print(0x40,"Welcome, come in");
 	delay_ms(2000);
-    printf("AT\r\n");  //test
-    delay_ms(2000);
+	printf("AT\r\n");  //test
+	delay_ms(2000);
+	lcd_print(0x00," NTD$20 / Hours ");
+	printf("AT+RST\r\n");  //reboot
+	delay_ms(2000);
+	printf("AT+CWMODE=1\r\n");  //Station MODE
+	delay_ms(2000);
+	printf("AT+CIPMUX=0\r\n");  //one connection mode
+	delay_ms(2000);
+	printf("AT+CWJAP=\"%s\",\"%s\"\r\n",SSID,PASSWD);
+	delay_ms(6000);
+	printf("AT+CIFSR\r\n");
+	delay_ms(5000);
 
-	while(1)
-	{
-		lcd_print(0x00," NTD$30 / Hours ");
-		printf("AT+RST\r\n");  //reboot
-		delay_ms(2000);
-		printf("AT+CWMODE=1\r\n");  //Station MODE
-		delay_ms(2000);
-		printf("AT+CIPMUX=0\r\n");  //one connection mode
-		delay_ms(2000);
-		printf("AT+CWJAP=\"%s\",\"%s\"\r\n",SSID,PASSWD);
-		delay_ms(9000);
-		printf("AT+CIFSR\r\n");
-		delay_ms(5000);
-		printf("AT+CIPSTART=\"TCP\",\"192.168.88.103\",8000\r\n");  // TCP connect
-		delay_ms(2000);
-		// printf("AT+CIPSEND=%d\r\n",sizeof(request));  //send
-		// delay_ms(2000);
-		// printf(request);
-		// delay_ms(8000);
-
-
-		while(REQF==1)   //! 當掃瞄到@ 進入此迴圈
+	while(1){
+	printf("AT+CIPSTART=\"TCP\",\"192.168.3.159\",8001\r\n");  // TCP connect
+	delay_ms(5000);
+		
+		while(REQF==1)    //! 當掃瞄到@ 進入此迴圈
 		{
 			char c2[20];
 			REQF=0; 
-      		sprintf(c2,"Avaliable : %s",c1);  //! sprintf() 把c1的內容存到%s的位置, 並且把整個字串給c2存放
+			sprintf(c2,"Avaliable : %s",c1);   //! sprintf() 把c1的內容存到%s的位置, 並且把整個字串給c2存放
 			lcd_print(0x00,"                ");
-			lcd_print(0x00,"How're you today");
+			lcd_print(0x00," NTD$20 / Hours ");
 			lcd_print(0x40,"                ");
 			lcd_print(0x40,c2);
 			delay_ms(5000);
