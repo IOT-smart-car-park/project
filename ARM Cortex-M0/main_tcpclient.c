@@ -1,5 +1,5 @@
 //! ============================
-//! 此版本TCP Client成功發出封包跟Server要剩餘車位，並且經過字串處理顯示在LCD上
+//! 此版本TCP Client 走http request成功發出封包跟Server要剩餘車位，並且經過字串處理顯示在LCD上
 //! ============================
 
 #include <Nano100Series.h>
