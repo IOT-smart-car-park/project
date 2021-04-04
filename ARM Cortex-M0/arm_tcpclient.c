@@ -1,5 +1,5 @@
 //! ============================
-//! 此版本TCP 不走http方式，字串處理剩餘車位顯示在LCD上  *適用場外LED + 場內分區LED
+//! 此版本TCP 不走http方式，字串處理剩餘車位顯示在LCD上  *適用場外LED + 場內分區LED + LCD_SHOW
 //! ============================
 
 #include <Nano100Series.h>
@@ -7,17 +7,24 @@
 #include <string.h>
 
 // Setting AP
-//#define SSID "dlink-F8F8"
-//#define PASSWD "18811881"
-//#define SSID "DCTV_2GH186U"
-//#define PASSWD "88888888"
+char *SERVERIP = "192.168.0.100";
+char *PORT = "8000";
+
 #define SSID "HUAWEI-610M8I"
 #define PASSWD "12345678"
 
 void lcd_init(void);
 void lcd_print(uint8_t pos, char *s);
 void wifi_callback(char *rbuf);
+void lcd_cmd(uint8_t c);
+void lcd_show(void);
+void lcd_put(uint8_t c);
 
+char day[4];
+char mon[4];
+char date[3];
+char watch[12];
+char year[5];
 
 void init_HCLK(void){
 	SYS_UnlockReg(); 
@@ -111,12 +118,189 @@ void wifi_callback(char *rbuf){
 	if(r!=4) {ERRF=0;}
 }
 
+void lcd_show(void){
+	int i;
+	// Part. 1
+	lcd_print(0x00, "   #It's time   ");
+	delay_ms(1000);
+	lcd_print(0x40, "#Don't hold back");
+	delay_ms(1000);
+	for(i=0;i<5;i++){
+		lcd_cmd(0x08);  // off
+		delay_ms(500);
+		lcd_cmd(0x0C); // on
+		delay_ms(500);
+	}
+	lcd_print(0x00, "                ");
+	lcd_print(0x40, "                "); 
+	
+	// Part. 2
+	lcd_print(0x00, " Are you ready? ");
+	delay_ms(1000);
+	for(i = 0; i <= 15; i ++){
+		lcd_print(0x40+i,"YES"); delay_ms(200);
+		lcd_print(0x40,"                ");
+	}
+	delay_ms(3000);
+	
+	// Part. 3
+	lcd_cmd(0x01);
+	
+	lcd_cmd(0x80); 
+	lcd_put(' '); 	delay_ms(300);
+	lcd_put('A'); 	delay_ms(300);
+	lcd_put('I'); 	delay_ms(300);
+	lcd_put('o'); 	delay_ms(300);
+	lcd_put('T'); 	delay_ms(300);
+	lcd_put(' '); 	delay_ms(300);
+	lcd_put('P'); 	delay_ms(300);
+	lcd_put('a'); 	delay_ms(300);
+	lcd_put('r'); 	delay_ms(300);
+	lcd_put('k'); 	delay_ms(300);
+	lcd_put('i'); 	delay_ms(300);
+	lcd_put('n'); 	delay_ms(300);
+	lcd_put('g'); 	delay_ms(300);
+	lcd_put(' '); 	delay_ms(300);
+	lcd_put('L'); 	delay_ms(300);
+	lcd_put('o'); 	delay_ms(300);
+	lcd_put('t'); 	delay_ms(2000);
+	
+	lcd_cmd(0xc0);
+	lcd_put('B'); 	delay_ms(300);
+	lcd_put('e'); 	delay_ms(300);
+	lcd_put('s'); 	delay_ms(300);
+	lcd_put('t'); 	delay_ms(300);
+	lcd_put(' '); 	delay_ms(300);
+	lcd_put('1'); 	delay_ms(300);
+	lcd_put(' '); 	delay_ms(300);
+	lcd_put('T'); 	delay_ms(300);
+	lcd_put('h'); 	delay_ms(300);
+	lcd_put('e'); 	delay_ms(300);
+	lcd_put(' '); 	delay_ms(300);
+	lcd_put('W'); 	delay_ms(300);
+	lcd_put('o'); 	delay_ms(300);
+	lcd_put('r'); 	delay_ms(300);
+	lcd_put('l'); 	delay_ms(300);
+	lcd_put('d'); 	delay_ms(2000);
+	
+	for(i=0;i<3;i++){
+		lcd_cmd(0x08);  // off
+		delay_ms(500);
+		lcd_cmd(0x0C); // on
+		delay_ms(500);
+	}
+	delay_ms(2000);
+	
+	
+	// Part. 4
+	lcd_print(0x00, "                ");
+	lcd_print(0x40, "                ");
+	
+	lcd_print(0x00, "Chrome Dino Game"); 
+	lcd_cmd(0xc0); //Set DDRAM address
+	lcd_put(0xff); //display wall 
+	lcd_cmd(0xc0+15); //Set DDRAM address
+	lcd_put(0xff); //display wall 
+	lcd_cmd(0xc0+2); //Set DDRAM address
+	lcd_put(0x03); //display dinosaur
+	lcd_cmd(0xc0+5); //Set DDRAM address
+	lcd_put(0x04); //display tree
+	
+	delay_ms(2000);
+	
+	for(i=0;i<8;i++){
+		lcd_cmd(0x08);  // off
+		delay_ms(200);
+		lcd_cmd(0x0C); // on
+		delay_ms(200);
+	}
+
+	lcd_print(0x00, "                ");	delay_ms(500);
+	lcd_print(0x01, "Ready?");	delay_ms(1000);
+	lcd_print(0x09, "Start!");	delay_ms(500);
+
+	for(i=0;i<8;i++){
+		lcd_cmd(0x08);  // off
+		delay_ms(200);
+		lcd_cmd(0x0C); // on
+		delay_ms(200);
+	}
+
+	// Part. 5
+	lcd_print(0x00, "                "); // Game Start
+
+	lcd_cmd(0xc0+5); //Set DDRAM address
+	lcd_put(' '); //clear tree
+	
+	lcd_cmd(0x80+13); 
+	lcd_put('3'); 
+	lcd_cmd(0x80+14); //Set DDRAM address
+	lcd_put(0x05); //display heart
+
+	lcd_cmd(0x80+12); //Set DDRAM address
+	lcd_put(0x06); //display up_arrow
+	
+	for(i = 0; i < 13; i ++){
+		lcd_cmd(0xc0+13-i); //Set DDRAM address
+		lcd_put(0x04); //display tree
+		lcd_put(' ');  //clear tree
+		delay_ms(200);
+	
+		if(i==10){
+			lcd_cmd(0xc0+2); //Set DDRAM address
+			lcd_put(' '); //clear dinosaur
+			lcd_cmd(0x80+2); //Set DDRAM address
+			lcd_put(0x03); //display dinosaur jump
+			
+			lcd_cmd(0xc0+3); //Set DDRAM address
+			lcd_put(0x04); //display tree
+			lcd_cmd(0xc0+3); //Set DDRAM address
+			lcd_put(' '); //clear tree
+			delay_ms(200);
+			lcd_cmd(0xc0+2); //Set DDRAM address
+			lcd_put(0x04); //display tree
+			lcd_cmd(0xc0+2); //Set DDRAM address
+			lcd_put(' '); //clear tree
+			delay_ms(200);
+			++i;
+			++i;
+				if(i==12){
+				lcd_cmd(0xc0+2); //Set DDRAM address
+				lcd_put(' '); //clear tree
+				lcd_cmd(0xc0+1); //Set DDRAM address
+				lcd_put(0x04); //display tree
+				delay_ms(200);
+				lcd_cmd(0x80+2); //Set DDRAM address
+				lcd_put(' '); //clear dinosaur
+				lcd_cmd(0xc0+2); //Set DDRAM address
+				lcd_put(0x03); //display dinosaur
+				delay_ms(200);
+				}
+		}
+	}
+	
+	lcd_print(0x02, "You PASS"); // Game Start
+	
+	/*
+	lcd_cmd(0xc0+10); //Set DDRAM address
+	lcd_put(0x07); //display STOP sign
+	lcd_cmd(0xc0+11); 
+	lcd_put('S');
+	lcd_cmd(0xc0+12); 
+	lcd_put('T');
+	lcd_cmd(0xc0+13); 
+	lcd_put('O');
+	lcd_cmd(0xc0+14); 
+	lcd_put('P');
+	*/
+	delay_ms(2000);
+}
+
 // ---------------------------------------------
 //  main
 // ---------------------------------------------
-
-
 int main(void){
+	int i;
 	init_HCLK();
 	init_systick();
 	init_UART0(115200);
@@ -126,7 +310,9 @@ int main(void){
 		PA12=1; delay_ms(500);  //debug LED
 		PA12=0; delay_ms(500);
 	}*/
+	
 	lcd_init();
+	
 	lcd_print(0x00,"AIoT Parking Lot");
 	delay_ms(2000);
 	lcd_print(0x40,"Welcome, come in");
@@ -145,20 +331,66 @@ int main(void){
 	printf("AT+CIFSR\r\n");
 	delay_ms(5000);
 
+	lcd_show();  //lcd_show()
+
 	while(1){
-	printf("AT+CIPSTART=\"TCP\",\"192.168.3.159\",8001\r\n");  // TCP connect
+	printf("AT+CIPSTART=\"TCP\",\"%s\",%s\r\n",SERVERIP,PORT);  // TCP connect
 	delay_ms(5000);
 		
 		while(REQF==1)   
 		{
 		char c2[20];
 		REQF=0; 
-		sprintf(c2,"Avaliable : %s",req.area_A); //! 配置req.left_car  / req.area_A  /  req.area_B
+		lcd_cmd(0x01);
+		lcd_print(0x00,"    2021  04  23 ");
+		lcd_print(0x40,"How is your day!");
+			
+		lcd_cmd(0x80+5); //Set DDRAM address
+		lcd_put(0x00); //display year
+		
+		lcd_cmd(0x80+9); //Set DDRAM address
+		lcd_put(0x01); //display month
+		
+		lcd_cmd(0x80+13); //Set DDRAM address
+		lcd_put(0x02); //display date
+			
+		delay_ms(5000);
+			
+			
+		sprintf(c2,"Avaliable : %s",req.left_car);  //! argument can change to : req.left_car  / req.area_A  /  req.area_B
 		lcd_print(0x00,"                ");
 		lcd_print(0x00," NTD$20 / Hours ");
 		lcd_print(0x40,"                ");
-		lcd_print(0x40,c2);
+		lcd_print(0x40,c2); 	
+		lcd_cmd(0xc0+15); //Set DDRAM address
+		lcd_put(0x05); //display heart
 		delay_ms(5000);
+
+			for(i=0;i<5;i++){
+				lcd_cmd(0x08);  // off
+				delay_ms(500);
+				lcd_cmd(0x0C); // on
+				delay_ms(500);
+			}
+
+		/* space A + space B left car
+
+			sprintf(c2,"Space Area A : %s",req.area_A);  
+			lcd_print(0x00,"                ");
+			lcd_print(0x00,c2);
+			lcd_print(0x40,"                ");
+			lcd_print(0x41,"Follow me");
+
+			lcd_cmd(0xc0+12); //Set DDRAM address
+			lcd_put(0x06); //display up_arrow
+			lcd_cmd(0xc0+13); //Set DDRAM address
+			lcd_put(0x06); //display up_arrow
+			lcd_cmd(0xc0+14); //Set DDRAM address
+			lcd_put(0x06); //display up_arrow
+			delay_ms(5000);
+
+		*/
+
 		}
 	}
 }
