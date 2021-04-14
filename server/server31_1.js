@@ -562,7 +562,7 @@ client.on('message', function (topic, message) {
 
     con.query(sql, function (error, result) {
       if (error) throw error;
-
+      //test
       console.log('汽車離開車格了。');
     });
   }
