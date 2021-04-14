@@ -452,18 +452,16 @@ client.on('message', function (topic, message) {
 //============車輛進場web cam傳照片來=====================
   if (message!=1&&topic == 'PLATE/img/in') {
 
-    var car = unclear_search(message.toString());
-
     //fs.writeFile(path, name, 'base64', function(){})
-    fs.writeFile(`C:/xampp/htdocs/img/${car}.jpg`, car,'base64', function(err) {
+    fs.writeFile(`C:/xampp/htdocs/img/${car_enter_no}.jpg`, message,'base64', function(err) {
           //console.log(err);
-          console.log('image saved to file: ' +`C:/xampp/htdocs/img/${car}.jpg`);          
+          console.log('image saved to file: ' +`C:/xampp/htdocs/img/${car_enter_no}.jpg`);          
         });
 
     setTimeout(upload_img1,2000);//設一個delay因為圖片複製沒那麼快，馬上進行上傳資料庫電腦會塞車
     function upload_img1(){
 
-      var sql = `UPDATE car_database SET image = LOAD_FILE('C:/xampp/htdocs/img/${car}.jpg') WHERE car_no = '${car}'`;//一定要設絕對路徑，因為是database要取的資料
+      var sql = `UPDATE car_database SET image = LOAD_FILE('C:/xampp/htdocs/img/${car_enter_no}.jpg') WHERE car_no = '${car_enter_no}'`;//一定要設絕對路徑，因為是database要取的資料
       con.query(sql, function (error, result) {
         if (error) throw error;
 
@@ -476,12 +474,14 @@ client.on('message', function (topic, message) {
 
 //===============停車格===================================
 //A01停車格
-  if(message==1&&topic=="red_A01"){
+  if(message!=0&&topic=="red_A01"){
+
     client.publish("PLATE/ch","1");
     line_A--;
+    console.log('汽車停好車格了aaaaa。');
   }
   if(message!=1&&topic=="PLATE/ch"){
-
+    console.log('汽車停好車格了。bbbbbbbb');
     var car =  unclear_search(message.toString());
 
     var sql = `UPDATE car_database SET place = 'A01' WHERE car_no = '${car}'`;
@@ -505,13 +505,14 @@ client.on('message', function (topic, message) {
     });
   }
 //A03停車格
-  if(message==1&&topic=="red_A03"){
-    client.publish("cam_A03","1");
+  if(message!=0&&topic=="red_A03"){
+
+    client.publish("PLATE/ch2","1");
     line_A--;
-
+    console.log('汽車停好車格了aaaaa。');
   }
-  if(message!=1&&topic=="cam_A03"){
-
+  if(message!=1&&topic=="PLATE/ch2"){
+    console.log('汽車停好車格了。bbbbbbbb');
     var car =  unclear_search(message.toString());
 
     var sql = `UPDATE car_database SET place = 'A03' WHERE car_no = '${car}'`;
@@ -535,34 +536,36 @@ client.on('message', function (topic, message) {
     });
   }
   //B02停車格
-    if(message==1&&topic=="red_B02"){
-      client.publish("cam_B02","1");
-      line_B--;
-    }
-    if(message!=1&&topic=="cam_B02"){
+  if(message!=0&&topic=="red_B02"){
 
-      var car =  unclear_search(message.toString());
+    client.publish("PLATE/ch3","1");
+    line_A--;
+    console.log('汽車停好車格了aaaaa。');
+  }
+  if(message!=1&&topic=="PLATE/ch3"){
+    console.log('汽車停好車格了。bbbbbbbb');
+    var car =  unclear_search(message.toString());
 
-      var sql = `UPDATE car_database SET place = 'B02' WHERE car_no = '${car}'`;
+    var sql = `UPDATE car_database SET place = 'B02' WHERE car_no = '${car}'`;
 
-      con.query(sql, function (error, result) {
-        if (error) throw error;
+    con.query(sql, function (error, result) {
+      if (error) throw error;
 
-        console.log('汽車停好車格了。');
-      });
-    }
-    if(message==0&&topic=="red_B02"){
+      console.log('汽車停好車格了。');
+    });
+  }
+  if(message==0&&topic=="red_B02"){
 
-      line_B++;
+    line_A++;
 
-      var sql = `UPDATE car_database SET place = '${null}' WHERE place = '${topic.slice(4,7)}'`;
+    var sql = `UPDATE car_database SET place = '${null}' WHERE place = '${topic.slice(4,7)}'`;
 
-      con.query(sql, function (error, result) {
-        if (error) throw error;
+    con.query(sql, function (error, result) {
+      if (error) throw error;
 
-        console.log('汽車離開車格了。');
-      });
-    }
+      console.log('汽車離開車格了。');
+    });
+  }
 //===============停車格===================================
 });
 
