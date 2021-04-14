@@ -1,6 +1,7 @@
-Semi
+Simulation
 ========
 ![效果圖](https://github.com/IOT-smart-car-park/project/blob/main/Openalpr%20API/demo_alpr_mqtt.png)
+Simulate by : [RAKULO](https://github.com/RAKULO)
 
 openalpr
 ========
