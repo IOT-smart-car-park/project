@@ -13,5 +13,5 @@
 Structure by : [RAKULO](https://github.com/RAKULO)
 
 ### 系統流程圖：
-![流程圖](https://github.com/RAKULO/smartparking/blob/main/paperwork_alpr.png)
+![流程圖](https://github.com/RAKULO/smartparking/blob/main/paperwork_flow.png)
 Flow by : [RAKULO](https://github.com/RAKULO)
