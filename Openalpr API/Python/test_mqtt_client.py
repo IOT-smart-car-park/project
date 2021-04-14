@@ -8,6 +8,7 @@ ISOTIMEFORMAT = '%m/%d %H:%M:%S'
 client = mqtt.Client()
 # client.username_pw_set("test", "1234")
 print("set ok")
+# client.connect("220.132.124.155", 1883, 60)
 client.connect("127.0.0.1", 1883, 60)
 
 while True:
