@@ -459,7 +459,7 @@ client.on('message', function (topic, message) {
   if (message!=1&&topic == 'PLATE/img/in') {
 
     //fs.writeFile(path, name, 'base64', function(){})
-    fs.writeFile(`C:/xampp/htdocs/img/${car_enter_no}.jpg`, message,'base64', function(err) {
+    fs.writeFile(`C:/xampp/htdocs/img/${car_enter_no}.jpg`, message.toString(),'base64', function(err) {
           //console.log(err);
           console.log('image saved to file: ' +`C:/xampp/htdocs/img/${car_enter_no}.jpg`);          
         });
