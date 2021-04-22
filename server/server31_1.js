@@ -33,7 +33,7 @@ app.get('/mobile', function (req, res) {
 
 app.use(bodyParser.urlencoded({ extended: false }))
 
-const client = mqtt.connect('tcp://220.132.124.155:1883');//MQTT broker IP
+const client = mqtt.connect('tcp://broker.emqx.io:1883');//MQTT broker IP
 //=============環境設定=======================
 
 //============全域變數==============================
@@ -382,6 +382,7 @@ client.on('message', function (topic, message) {
 //車輛進場紅外線感應到車子，通知伺服器後，伺服器跟鏡頭要資料
   if (message == 1 &&topic=='red') {
     client.publish('SERVER/on', '1');
+    console.log("進場紅外線感應到車輛了");
   }
 //伺服器接收進場車量的車號，伺服器將車號寫入資料庫
   if (message!=1&&topic == 'PLATE/in') {
@@ -396,7 +397,8 @@ client.on('message', function (topic, message) {
     con.query(sql, function (error, result) {
         if (error) throw error;//2_1 上傳失敗顯示error
 
-        console.log('成功新增了 1 筆進場車號。');//2_2上傳成功在console顯示字串
+        console.log(`成功新增了 1 筆進場車號`);//2_2上傳成功在console顯示字串
+        console.log("柵欄準備開啟");
       }); 
 
     //伺服器都執行完畢後，把車號和開門指令，傳給柵欄
@@ -405,6 +407,7 @@ client.on('message', function (topic, message) {
 
   //當進場紅外線感應不到車輛時，請求柵欄關閉
   if(message==0&&topic=="red"){
+    console.log("柵欄準備關閉");
     setTimeout(fence_close,3000);//delay 3秒再關柵欄
     function fence_close(){
       client.publish('fence', 'abc/1');//關柵欄
@@ -413,6 +416,7 @@ client.on('message', function (topic, message) {
 
 //離場紅外線感應到有車子要離場，伺服器傳訊息跟鏡頭要資料
   if (message == 1 && topic == 'redl') {
+    console.log("離場紅外線感應到車輛了");
     client.publish('SERVER/off', '1');
   }
 
@@ -428,7 +432,8 @@ client.on('message', function (topic, message) {
         con.query(sql, function (error, result) {
           if (error) throw error;
 
-          console.log('成功更新了 1 筆離場車號。');
+          console.log(`成功更新了 1 筆離場車號, 車號: ${car}`);
+          console.log("柵欄準備開啟");
         });
         break;
       }
@@ -438,14 +443,15 @@ client.on('message', function (topic, message) {
       }
     }
 
-    client.publish('fencel', 'a/0');//open fence
+    client.publish('fencel', 'a/1');//open fence
   }
 
   //離場紅外線通知伺服器感應不到車輛，伺服器請求柵欄關閉
   if(message==0&&topic=="redl"){
+    console.log("柵欄準備關閉");
     setTimeout(fencel_close,3000);//delay 3秒再關柵欄
     function fencel_close(){
-      client.publish('fencel', 'a/1');//close
+      client.publish('fencel', 'a/0');//close
     }
   }
 
@@ -478,18 +484,18 @@ client.on('message', function (topic, message) {
 
     client.publish("PLATE/ch","1");
     line_A--;
-    console.log('汽車停好車格了aaaaa。');
+    console.log('紅外線感應到車子 A01。');
   }
   if(message!=1&&topic=="PLATE/ch"){
-    console.log('汽車停好車格了。bbbbbbbb');
     var car =  unclear_search(message.toString());
+    console.log(`汽車停好車格了。伺服器收到車號: ${car}`);
 
     var sql = `UPDATE car_database SET place = 'A01' WHERE car_no = '${car}'`;
 
     con.query(sql, function (error, result) {
       if (error) throw error;
 
-      console.log('汽車停好車格了。');
+      console.log('A01車格資料庫更新成功');
     });
   }
   if(message==0&&topic=="red_A01"){
@@ -501,7 +507,7 @@ client.on('message', function (topic, message) {
     con.query(sql, function (error, result) {
       if (error) throw error;
 
-      console.log('汽車離開車格了。');
+      console.log('汽車離開車格了。A01');
     });
   }
 //A03停車格
@@ -509,18 +515,18 @@ client.on('message', function (topic, message) {
 
     client.publish("PLATE/ch2","1");
     line_A--;
-    console.log('汽車停好車格了aaaaa。');
+    console.log('紅外線感應到車子 A03。');
   }
   if(message!=1&&topic=="PLATE/ch2"){
-    console.log('汽車停好車格了。bbbbbbbb');
     var car =  unclear_search(message.toString());
+    console.log(`汽車停好車格了。伺服器收到車號: ${car}`);
 
     var sql = `UPDATE car_database SET place = 'A03' WHERE car_no = '${car}'`;
 
     con.query(sql, function (error, result) {
       if (error) throw error;
 
-      console.log('汽車停好車格了。');
+      console.log('A03車格資料庫更新成功');
     });
   }
   if(message==0&&topic=="red_A03"){
@@ -532,44 +538,44 @@ client.on('message', function (topic, message) {
     con.query(sql, function (error, result) {
       if (error) throw error;
 
-      console.log('汽車離開車格了。');
+      console.log('汽車離開車格了。A03');
     });
   }
   //B02停車格
   if(message!=0&&topic=="red_B02"){
 
     client.publish("PLATE/ch3","1");
-    line_A--;
-    console.log('汽車停好車格了aaaaa。');
+    line_B--;
+    console.log('紅外線感應到車子 B02。');
   }
   if(message!=1&&topic=="PLATE/ch3"){
-    console.log('汽車停好車格了。bbbbbbbb');
     var car =  unclear_search(message.toString());
+    console.log(`汽車停好車格了。伺服器收到車號: ${car}`);
 
     var sql = `UPDATE car_database SET place = 'B02' WHERE car_no = '${car}'`;
 
     con.query(sql, function (error, result) {
       if (error) throw error;
 
-      console.log('汽車停好車格了。');
+      console.log('B02車格資料庫更新成功');
     });
   }
   if(message==0&&topic=="red_B02"){
 
-    line_A++;
+    line_B++;
 
     var sql = `UPDATE car_database SET place = '${null}' WHERE place = '${topic.slice(4,7)}'`;
 
     con.query(sql, function (error, result) {
       if (error) throw error;
-      //test
-      console.log('汽車離開車格了。');
+
+      console.log('汽車離開車格了。B02');
     });
   }
 //===============停車格===================================
 });
 
-//==================MQTT================================
+//==================MQTT==================================
 
 //====================server================================
 app.listen(8000, function () {
