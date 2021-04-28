@@ -16,7 +16,7 @@ client.on('connect', function () {
   var img = fs.readFileSync("cat.jpg");
   console.log(img);
 
-  client.publish('cam', img);
+  client.publish('PLATE/ing/in', img);
 });
 
 // var blob= new Blob([img], {type: "image/jpg"});
